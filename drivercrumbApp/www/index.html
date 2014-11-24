@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-tap-highlight" content="no" />
+<!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+<meta name="viewport" content="user-scalable=yes, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=medium-dpi" />
+<link rel="stylesheet" type="text/css" href="css/index.css" />
+<title>Cabline Driver App</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD9k5-18fGc7SeM63W4xaqYKLp1ESi2IRI&sensor=false"></script>
+<script src="htmlindiv.js"></script>
+<script src="savepos.js"></script>
+
+<script>
+  var ticker=0;//declare a ticker to use inside the on success function n.b. can't declare it inside the function or it will reset to 0 each time
+  var watchID;
+	var onSuccess = function(position) {
+	if((ticker==0)||(ticker>60)){
+    var lati= position.coords.latitude; 
+    var longi= position.coords.longitude;
+  	var myLatlng=new google.maps.LatLng(lati,longi);
+    var myOptions={center:myLatlng,zoom:8,mapTypeId:google.maps.MapTypeId.ROADMAP};
+    var map=new google.maps.Map(document.getElementById("map_canvas"),myOptions);
+    var marker = new google.maps.Marker({position: myLatlng,map: map,}); 
+    var dutyid=document.getElementById("dutyid").value;
+    loadpos("http://www.insites.me.uk/busman/ops/driverApp/savepos.php","dutyid="+dutyid+"&longi="+longi+"&lati="+lati);	
+	}
+	ticker++;
+	if(ticker>60)ticker=0;
+} 
+
+// onError Callback receives a PositionError object
+function onError(error) {
+  alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+}
+
+function loginnow() {
+  var username=document.getElementById("username").value;
+  var password=document.getElementById("password").value;
+  load("http://www.insites.me.uk/busman/ops/driverApp/login.php","maindiv","password="+password+"&username="+username);
+}
+function chooseduty(dutyid) {
+  load("http://www.insites.me.uk/busman/ops/driverApp/mapview.php","maindiv","dutyid="+dutyid);
+}
+function dutypage(operatorid) {
+  load("http://www.insites.me.uk/busman/ops/driverApp/dutypage.php","maindiv","operatorid="+operatorid);
+}
+function watchme(){
+ watchID= navigator.geolocation.watchPosition(onSuccess, onError,{ enableHighAccuracy: true});
+} 
+function stopwatch(){
+   navigator.geolocation.clearWatch(watchID);
+}
+</script> 
+</head>
+<body>
+<div style="text-align:center;margin:5%">
+  <img src="img/cabline.jpg" alt="" style="float:left">
+  <h1>Cabline UK Ltd.</h1>
+  <br>
+  <h2>Driver Tracking</h2>
+	<br><br><br>
+	<div id="maindiv">
+	  <p>Welcome to Cabline's Driver App, where you can record your journey and track your vehicle progress
+       for the duties you are driving today. You will need to know your duty numbers to use the App.
+	  </p>
+	  <div style="width:280px">
+      <form> 
+	    <h3>Log in below</h3>
+      <p>User name:<input type="text" name="username" id="username" style="float:right"></p>
+      <p>Password:<input type="password" name="password" id="password" style="float:right"></p>
+      <button type="button" onclick="loginnow();" name="loginbutton">Log In</button>
+      </form>
+    </div>
+	  <br>
+	  <img src="img/buses.jpg" alt="" style="width:80%;height:80%">
+  </div>
+</div>
+<div id="deviceready" class="blink">
+  <p class="event listening">Connecting to Device</p>
+</div> 
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+<script type="text/javascript">app.initialize();</script>
+</body>
+</html>
